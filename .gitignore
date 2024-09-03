@@ -1,0 +1,7 @@
+# Ignorar todos os arquivos e subdiretórios dentro do diretório databases/
+databases/*
+.env
+# Adicionalmente, ignorar o diretório sessions/
+sessions/
+# Não ignorar o arquivo .gitkeep ou .gitignore
+!databases/.gitkeep
