@@ -1,17 +1,70 @@
 {{extend 'layout.html'}}
 
+<style>
+  body{
+    background-color: #181818;
+  }
+  #web2py_user_form{
+    background-color: #343434;
+    margin: 0 auto 5px auto; border-radius:5px;padding: 20px;
+    width: 40%;
+    border-radius: 10px;
+  }
+  .form-group {
+    margin-bottom: 1rem;
+    flex-direction: column;
+  }
+  label{
+    display: none;
+  }
+  input{
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #AFAFAF !important;
+    border-radius: 5px;
+  }
+  .esqueciSenha{
+    display: block;
+    margin-top: 10px;
+    text-align: center;
+    color: #ffffff;
+  }
+  .esqueciSenha:hover{
+    color: #01FF5F;
+    text-decoration: none;
+  }
+  .btn-primary{
+    width: 40%;
+    background-color: #39693B !important;
+    color: #01FF5F !important;
+    border: none;
+  }
+  .row{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .col-sm-offset-3{
+    text-align: center;
+  }
+  .login-logo{
+    height: 15% !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+</style>
+
 <div class="row"> 
-  <div id="web2py_user_form" class="col-lg-6" style="background-color:white; margin: 0 auto 5px auto; box-shadow: 0 0 5px #a1a1a1; border-radius:5px;padding: 20px">
-    <h2>
-      {{=T('Sign Up') if request.args(0) == 'register' else T('Log In') if request.args(0) == 'login' else T(request.args(0).replace('_',' ').title())}}
-    </h2>
+  <div></div>
+      <img class="login-logo" src="{{=URL('static', 'images/logo_vincit.png')}}" alt="Logo Vincit">
+  </div>
+  <div id="web2py_user_form" class="col-lg-6">
     {{=form}}
-    {{if request.args(0)=='login' and not 'register' in auth.settings.actions_disabled:}}
-    <a href="{{=URL('user/register')}}">{{=T('Register')}}</a>
-    <br/>
-    {{pass}}
     {{if request.args(0)=='login' and not 'retrieve_password' in auth.settings.actions_disabled:}}
-    <a href="{{=URL('user/retrieve_password')}}">{{=T('Lost your password?')}}</a>
+    <a class="esqueciSenha" href="{{=URL('user/retrieve_password')}}">{{=T('Lost your password?')}}</a>
     {{pass}}
     {{if request.args(0)=='register':}}
     <a href="{{=URL('user/login')}}">{{=T('Login')}}</a>
@@ -29,5 +82,23 @@
 {{elif request.args(0)=='change_password':}}
     web2py_validate_entropy(jQuery('#no_table_new_password'),100);
 {{pass}}
+ 
+  // gambiarras para forçar os placeholders
+  document.getElementById('usuario_email').setAttribute('placeholder', 'Digite seu e-mail');
+    
+  document.getElementById('usuario_password').setAttribute('placeholder', 'Digite sua senha');
+
+  // gabiarra para forçar o bootstrap
+  function alterarColunas() {
+        var elementos = document.querySelectorAll('.col-sm-9');
+        
+        elementos.forEach(function(elemento) {
+            elemento.classList.remove('col-sm-9');
+            elemento.classList.add('col-sm-12');
+        });
+    }
+
+    window.onload = alterarColunas;
+
 </script>
 {{end page_js}}
