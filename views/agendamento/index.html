@@ -1,0 +1,281 @@
+{{extend 'layout.html'}}
+
+<!-- Importações do FullCalendar -->
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/main.min.css' rel='stylesheet' />
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/main.min.js'></script>
+
+<!-- Botão para abrir a modal de cadastro de agendamento -->
+<div class="d-flex justify-content-between mb-2">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#criarAgendamentoModal"> <!-- Corrigido -->
+        Novo Agendamento
+    </button>
+</div>
+
+<!-- Container para o FullCalendar -->
+<div id='calendar'></div>
+
+<!-- Modal para criar um novo agendamento -->
+<div class="modal fade" id="criarAgendamentoModal" tabindex="-1" aria-labelledby="criarAgendamentoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="criarAgendamentoModalLabel">Novo Agendamento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formAgendamento">
+          <div class="mb-3">
+            <label for="titulo" class="form-label">Título</label>
+            <input type="text" class="form-control" id="titulo" name="titulo" required>
+          </div>
+          <div class="mb-3">
+            <label for="cliente_id" class="form-label">Cliente</label>
+            <select class="form-select" id="cliente_id" name="cliente_id" required>
+              <!-- Os clientes devem ser preenchidos dinamicamente -->
+              {{for cliente in db().select(db.clientes.ALL):}}
+              <option value="{{=cliente.id}}">{{=cliente.nome}}</option>
+              {{pass}}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="descricao" class="form-label">Descrição</label>
+            <textarea class="form-control" id="descricao" name="descricao" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="horario_inicio" class="form-label">Horário de Início</label>
+            <input type="datetime-local" class="form-control" id="horario_inicio" name="horario_inicio" required>
+          </div>
+          <div class="mb-3">
+            <label for="horario_fim" class="form-label">Horário de Fim</label>
+            <input type="datetime-local" class="form-control" id="horario_fim" name="horario_fim" required>
+          </div>
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="recorrente" name="recorrente">
+            <label class="form-check-label" for="recorrente">
+              Recorrente
+            </label>
+          </div>
+          <div class="mb-3">
+            <label for="recorrencia_dias" class="form-label">Recorrência (Dias)</label>
+            <input type="number" class="form-control" id="recorrencia_dias" name="recorrencia_dias" min="1">
+          </div>
+          <button type="submit" class="btn btn-success">Salvar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal para editar um agendamento ao clicar no evento -->
+<div class="modal fade" id="editAgendamentoModal" tabindex="-1" aria-labelledby="editAgendamentoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editAgendamentoModalLabel">Editar Agendamento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editAgendamentoForm">
+          <input type="hidden" id="edit_id" name="id">
+          <div class="mb-3">
+            <label for="edit_titulo" class="form-label">Título</label>
+            <input type="text" class="form-control" id="edit_titulo" name="titulo" required>
+          </div>
+          <div class="mb-3">
+            <label for="edit_cliente_id" class="form-label">Cliente</label>
+            <select class="form-select" id="edit_cliente_id" name="cliente_id" required>
+              <!-- Os clientes podem ser carregados aqui dinamicamente via JavaScript -->
+              {{for cliente in db().select(db.clientes.ALL):}}
+              <option value="{{=cliente.id}}">{{=cliente.nome}}</option>
+              {{pass}}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="edit_horario_inicio" class="form-label">Horário de Início</label>
+            <input type="datetime-local" class="form-control" id="edit_horario_inicio" name="horario_inicio" required>
+          </div>
+          <div class="mb-3">
+            <label for="edit_horario_fim" class="form-label">Horário de Fim</label>
+            <input type="datetime-local" class="form-control" id="edit_horario_fim" name="horario_fim" required>
+          </div>
+          <div class="mb-3">
+            <label for="edit_descricao" class="form-label">Descrição</label>
+            <textarea class="form-control" id="edit_descricao" name="descricao" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-success">Salvar Alterações</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    var appName = '{{=app_name}}';
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'pt-br',
+            monthNames: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
+            buttonText: {
+                today: "Hoje",
+                month: "Mês",
+                week: "Semana",
+                day: "Dia",
+            },
+            allDayText: 'dia inteiro',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            navLinks: true,
+            selectable: true,
+            selectMirror: true,
+            editable: true,  // Permite arrastar e soltar
+            events: {
+                url: '{{=URL("agendamento", "api_get_agendamentos")}}',
+                method: 'GET',
+                failure: function() {
+                    alert('Erro ao carregar agendamentos!');
+                }
+            },
+            eventClick: function(info) {
+                var event = info.event;
+                $('#edit_id').val(event.id);
+                $('#edit_titulo').val(event.title);
+                $('#edit_cliente_id').val(event.extendedProps.cliente_id);
+                $('#edit_horario_inicio').val(event.start.toISOString().slice(0, 16)); 
+                $('#edit_horario_fim').val(event.end.toISOString().slice(0, 16));
+                $('#edit_descricao').val(event.extendedProps.descricao);
+                
+                $('#editAgendamentoModal').modal('show');
+            },
+            eventDrop: function(info) {
+                var event = info.event;
+                var newStart = event.start.toISOString().slice(0, 19).replace('T', ' '); 
+                var newEnd = event.end ? event.end.toISOString().slice(0, 19).replace('T', ' ') : null;
+                
+                console.log("Atualizando agendamento ao arrastar:", {
+                    id: event.id,
+                    horario_inicio: newStart,
+                    horario_fim: newEnd
+                });
+
+                $.ajax({
+                    url: '{{=URL("agendamento", "api_update_agendamento")}}',
+                    method: 'POST',
+                    data: JSON.stringify({
+                        id: event.id,
+                        horario_inicio: newStart,
+                        horario_fim: newEnd
+                    }),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        console.log("Resposta da API de atualização de data:", response);
+                        if (response.status !== 'success') {
+                            alert('Erro ao atualizar a data do agendamento!');
+                        }
+                    },
+                    error: function() {
+                        alert('Erro na comunicação com o servidor ao arrastar o agendamento!');
+                    }
+                });
+            }
+        });
+
+        calendar.render();
+
+        var formAgendamento = document.getElementById('formAgendamento');
+
+        if (formAgendamento) {
+            formAgendamento.addEventListener('submit', function(event) {
+                event.preventDefault();  
+
+                // Gambiarra pra formatar a data
+                function formatDateTimeForServer(datetimeStr) {
+                    if (datetimeStr && datetimeStr.length === 16) { 
+                        return datetimeStr.replace('T', ' ') + ':00'; 
+                    }
+                    return datetimeStr;
+                }
+
+                var inicioField = formAgendamento.querySelector('input[name="inicio"]');
+                var fimField = formAgendamento.querySelector('input[name="fim"]');
+
+                var dataToSend = {
+                    titulo: formAgendamento.querySelector('input[name="titulo"]').value,
+                    cliente_id: formAgendamento.querySelector('select[name="cliente_id"]').value,
+                    descricao: formAgendamento.querySelector('textarea[name="descricao"]').value,
+                    horario_inicio: formatDateTimeForServer(formAgendamento.querySelector('input[name="horario_inicio"]').value),
+                    horario_fim: formatDateTimeForServer(formAgendamento.querySelector('input[name="horario_fim"]').value),
+                    recorrente: formAgendamento.querySelector('input[name="recorrente"]').checked ? true : false,
+                    recorrencia_dias: formAgendamento.querySelector('input[name="recorrencia_dias"]').value || null
+                };
+
+                console.log("Enviando dados para a API:", dataToSend);
+
+                fetch('/' + appName + '/agendamento/api_criar_agendamento', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dataToSend)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Resposta da API:", data);
+                    if (data.status === 'success') {
+                        calendar.refetchEvents(); 
+                        $('#criarAgendamentoModal').modal('hide');  
+                    } else {
+                        alert('Erro ao criar o agendamento: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao criar o agendamento:', error);
+                });
+            });
+        }
+
+        // edição de agendamento
+        $('#editAgendamentoForm').on('submit', function(e) {
+            e.preventDefault();
+
+            var dataToSend = {
+                id: $('#edit_id').val(),
+                titulo: $('#edit_titulo').val(),
+                cliente_id: $('#edit_cliente_id').val(),
+                descricao: $('#edit_descricao').val(),
+                horario_inicio: $('#edit_horario_inicio').val().replace('T', ' ') + ':00',  
+                horario_fim: $('#edit_horario_fim').val().replace('T', ' ') + ':00',
+                recorrente: $('#edit_recorrente').is(':checked'),
+                recorrencia_dias: $('#edit_recorrencia_dias').val() || null
+            };
+
+            console.log("Dados enviados para edição:", dataToSend);
+
+            $.ajax({
+                url: '{{=URL("agendamento", "api_update_agendamento")}}',
+                method: 'POST',
+                data: JSON.stringify(dataToSend),
+                contentType: 'application/json',
+                success: function(response) {
+                    console.log("Resposta da API de edição:", response);
+                    if (response.status === 'success') {
+                        $('#editAgendamentoModal').modal('hide');
+                        calendar.refetchEvents();  
+                    } else {
+                        alert('Erro ao atualizar agendamento: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('Erro na comunicação com o servidor!');
+                }
+            });
+        });
+    });
+</script>
+

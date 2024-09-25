@@ -1,0 +1,28 @@
+{{extend 'layout.html'}}
+<h2>Lista de Usuários</h2>
+<a href="{{=URL('criar')}}" class="btn btn-primary mb-3">Criar Novo Usuário</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Cargo</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{for usuario in usuarios:}}
+        <tr>
+            <td>{{=usuario.first_name}} {{=usuario.last_name}}</td>
+            <td>{{=usuario.email}}</td>
+            <td>{{=usuario.cargo}}</td>
+            <td>
+                <a href="{{=URL('editar', args=[usuario.id])}}" class="btn btn-warning btn-sm">Editar</a>
+                <a href="{{=URL('deletar', args=[usuario.id])}}" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir este usuário?');">Deletar</a>
+            </td>
+        </tr>
+        {{pass}}
+    </tbody>
+</table>
+
