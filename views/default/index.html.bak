@@ -1,0 +1,5 @@
+{{extend 'layout.html'}}
+
+<div class="container-fluid">
+    <h1>login realizado com sucesso!</h1>
+</div>

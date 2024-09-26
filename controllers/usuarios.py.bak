@@ -1,0 +1,79 @@
+@auth.requires_login()
+def index():
+    # Aqui ele consulta os usuários existesntes para retornar na view
+    usuarios = db(db.usuario).select()
+    return dict(usuarios=usuarios)
+
+@auth.requires_login()
+def criar():
+    # Busca os setores existentes para retornar na view
+    setores = db(db.setor).select()
+
+    if request.env.request_method == 'POST':
+        first_name = request.post_vars.first_name
+        last_name = request.post_vars.last_name
+        email = request.post_vars.email
+        password = request.post_vars.password
+        cargo = request.post_vars.cargo
+
+        if not first_name or not last_name or not email or not password:
+            response.flash = 'Todos os campos são obrigatórios'
+        elif not IS_EMAIL()(email)[1] is None:
+            response.flash = 'Email inválido'
+        else:
+            try:
+                # Usa o insert para inserir na tabela do db.py
+                db.usuario.insert(
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email,
+                    password=db.usuario.password.validate(password)[0],
+                    cargo=cargo
+                )
+                session.flash = 'Usuário criado com sucesso!'
+                redirect(URL('index'))
+            except Exception as e:
+                ...
+    
+    return dict(setores=setores) #aqui eu defino que a variável setores será passada para a view
+
+@auth.requires_login()
+def editar():
+    usuario_id = request.args(0) or redirect(URL('index'))
+    usuario = db.usuario(usuario_id) or redirect(URL('index'))
+
+    setores = db(db.setor).select()
+
+    if request.env.request_method == 'POST':
+        first_name = request.post_vars.first_name
+        last_name = request.post_vars.last_name
+        email = request.post_vars.email
+        cargo = request.post_vars.cargo
+
+        if not first_name or not last_name or not email:
+            response.flash = 'Todos os campos são obrigatórios'
+        elif not IS_EMAIL()(email)[1] is None:
+            response.flash = 'Email inválido'
+        else:
+            try:
+                # Aqui é bem similar a anterior, a diferença é que ele usa o update para atualizar 
+                usuario.update_record(
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email,
+                    cargo=cargo
+                )
+                session.flash = 'Usuário atualizado com sucesso!'
+                redirect(URL('index'))
+            except Exception as e:
+                ...
+
+    return dict(usuario=usuario, setores=setores)
+
+@auth.requires_login()
+# talvez seja interessante vermos a viabilidade de excluir um usuário ou apenas desativar
+def deletar():
+    usuario_id = request.args(0) or redirect(URL('index'))
+    db(db.usuario.id == usuario_id).delete()
+    session.flash = 'Usuário deletado com sucesso!'
+    redirect(URL('index'))

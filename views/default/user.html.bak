@@ -64,6 +64,7 @@
   </div>
   <div id="web2py_user_form" class="col-lg-6">
     {{=form}}
+    {{pass}}
     {{if request.args(0)=='register':}}
     <a href="{{=URL('user/login')}}">{{=T('Login')}}</a>
     {{pass}}

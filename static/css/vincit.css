@@ -1,0 +1,205 @@
+:root {
+     --verde-limao: #01FF5F;
+     --verde-escuro: #39693b;
+     --verde-escurão: #002106;
+     --branco: #ffffff;
+     --preto: #181818;
+     --preto-absoluto: #000000;
+     --cinza-claro: #7d7d7d;
+     --detalhes: #A6687C;
+     --erro: #BA1A1A;
+     --alerta: #E6CD00;
+ }
+
+ body {
+     background-color: var(--preto);
+     display: flex;
+     min-height: 100vh;
+     margin: 0;
+     font-family: Arial, sans-serif;
+ }
+
+ h1,
+ h2,
+ h3,
+ p,
+ th,
+ td {
+     color: var(--branco);
+ }
+
+ a {
+     color: var(--branco);
+     text-decoration: none;
+ }
+
+ /* sidebar */
+ .sidebar {
+     width: 250px;
+     background-color: var(--preto-absoluto);
+     color: var(--branco);
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     transition: width 0.3s ease;
+ }
+
+ .sidebar.collapsed {
+     width: 120px;
+ }
+
+ .sidebar .nav-link {
+     color: var(--branco);
+     text-align: center;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     transition: color 0.3s ease;
+ }
+
+ .sidebar .nav-link span {
+     color: var(--branco);
+ }
+
+ .sidebar .nav-link i {
+     color: var(--branco);
+     transition: color 0.3s ease;
+     font-size: 28px;
+     padding: 5px 25px;
+ }
+
+ /* Hover e Active afetam apenas o ícone */
+ .sidebar .nav-link:hover i,
+ .sidebar .nav-link.active i {
+     background-color: var(--verde-limao);
+     color: var(--preto-absoluto);
+     border-radius: 15px;
+ }
+
+ /* O texto permanece branco mesmo em hover ou active */
+ .sidebar .nav-link:hover span,
+ .sidebar .nav-link.active span {
+     color: var(--branco);
+ }
+
+ /* Logo da sidebar */
+ .sidebar .logo img {
+     margin-top: 10px;
+     width: 100px;
+     transition: width 0.3s ease;
+ }
+
+ .sidebar.collapsed .logo img {
+     width: 80px;
+ }
+
+ .content {
+     flex-grow: 1;
+     padding: 20px;
+     transition: margin-left 0.3s ease;
+ }
+
+ /* Quando a sidebar estiver piquitita */
+ .content.collapsed {
+     margin-left: 80px;
+ }
+
+ .toggle-sidebar {
+     background-color: var(--verde-limao);
+     color: var(--preto-absoluto);
+     padding: 5px;
+     border-radius: 50%;
+     cursor: pointer;
+     display: block;
+     text-align: center;
+     margin: 20px auto;
+     width: 40px;
+     height: 40px;
+ }
+
+ .toggle-sidebar svg {
+     width: 100%;
+     height: 100%;
+     fill: var(--preto-absoluto);
+ }
+
+ .dropdown-menu {
+     background-color: var(--preto);
+     color: var(--branco);
+     border: none;
+ }
+
+ .dropdown-item {
+     color: var(--branco);
+     text-align: center;
+ }
+
+ .dropdown-item:hover {
+     background-color: var(--verde-limao);
+     color: var(--branco);
+ }
+
+ .alert {
+     position: fixed;
+     top: 20px;
+     right: 20px;
+     z-index: 1000;
+     width: auto;
+     max-width: 300px;
+     padding: 15px;
+     background-color: var(--verde-escuro);
+     border: 1px solid --verde-escuro;
+     color: var(--branco);
+     border-radius: 4px;
+     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+ }
+
+ .alert .close {
+     position: fixed;
+     top: 10px;
+     right: 5px;
+     color: var(--branco);
+     font-size: 20px;
+     cursor: pointer;
+     opacity: 0.5;
+ }
+
+ .alert .close:hover {
+     opacity: 1;
+ }
+
+
+ /* Agenda */
+ button#criarAgendamento {
+     background-color: var(--verde-limao);
+     color: var(--preto-absoluto);
+     border: none;
+     border-radius: 5px;
+     padding: 10px 20px;
+     cursor: pointer;
+     box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+ }
+
+ button#criarAgendamento:hover {
+     background-color: var(--verde-limao);
+ }
+
+ #calendar {
+     padding: 1rem;
+     background-color: var(--cinza-claro);
+     border-radius: 15px;
+ }
+
+ .fc .fc-button-primary,
+ .fc .fc-button-primary:disabled {
+     background-color: var(--verde-limao);
+     border-color: var(--verde-limao);
+     color: var(--preto-absoluto);
+ }
+
+ .fc .fc-button-primary:not(:disabled).fc-button-active,
+ .fc .fc-button-primary:not(:disabled):active {
+     background-color: var(--verde-escurão);
+     border-color: var(--verde-escurão);
+     color: var(--branco);
+ }
